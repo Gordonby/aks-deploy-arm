@@ -7,11 +7,6 @@ on:
     paths: 
       - 'bicep/*'
       - ".github/workflows/bicepBuild.yml"
-      
-  pull_request:
-    branches:
-      - main
-      - master
 
   workflow_dispatch:
   
