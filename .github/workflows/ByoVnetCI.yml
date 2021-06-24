@@ -1,14 +1,19 @@
 name: ByoVnetCI
 # Credential prerequisites
-# 1. IAM Owner on the Resource Group you're deploying into
-# 2. IAM Owner on the Resource Group with vnet
-
-
+# 1. IAM Owner on the Resource Group you're deploying into (we're making role assignments)
+# 2. IAM Owner on the Resource Group with vnet (we're making role assignments)
 
 on:
   push:
+    branches: [ action* ]
+  
+  pull_request:
     branches: [ master ]
-
+  
+  schedule:
+    # At 11:50pm, every day
+    - cron: '50 23 * * *'
+    
   workflow_dispatch:
 
 jobs:
@@ -16,14 +21,34 @@ jobs:
     runs-on: ubuntu-latest
     env: 
       RG: 'Automation-Actions-AksDeployCI'
+      ParamFilePath: ".github/workflows_dep/AksDeploy-ByoVnet.parameters.json"
+      RESNAME: 'AksByo'
+      DEPNAME: 'Dep${{ github.run_number }}'
+      
     steps:
       - uses: actions/checkout@v2
 
       - name: Param check
         run: |
           RG='${{ env.RG }}'
-          echo 'RG is: $RG'
+          echo "RG is: $RG"
+          
+          echo "Param file path is: ${{ env.ParamFilePath }}"
+          echo "Resource name is ${{ env.RESNAME }}
+          echo "Deployment name is ${{ env.DEPNAME }}
 
+      - name: Dependency check
+        shell: pwsh
+        run: |
+          Write-Output "Checking parameter file existance/contents"
+          $paramFilePath="${{ env.ParamFilePath }}"
+          Test-Path $paramFilePath
+          
+          if (Test-Path $paramFilePath) {
+            $paramFileContent=Get-Content $paramFilePath
+            Write-Output $paramFileContent
+          }
+          
       - name: Azure Login
         uses: Azure/login@v1
         with:
@@ -37,7 +62,7 @@ jobs:
         uses: Azure/cli@1.0.4
         with:
           inlineScript: |
-            RG='Automation-Actions-AksDeployCI'
+            RG='${{ env.RG }}'
             RUNCOUNT=$(az deployment group list -g $RG --query "[?properties.provisioningState=='Running'].[properties.provisioningState, name] | length(@)" -o tsv)
             echo "Active deployments : $RUNCOUNT"
             
@@ -54,26 +79,48 @@ jobs:
         #if: steps.activedeps.outputs.RUNCOUNT == 0
         with:
           inlineScript: |
-            RG='Automation-Actions-AksDeployCI'
+            RG='${{ env.RG }}'
             RESNAME='AksByo'
             DEPNAME='Dep${{ github.run_number }}'
-            az group deployment validate -f main.bicep -g $RG -p "AksDeploy-ByoVnet.parameters.json" -p resourceName=$RESNAME --verbose
+            az deployment group validate -f bicep/main.bicep -g $RG -p ".github/workflows_dep/AksDeploy-ByoVnet.parameters.json" -p resourceName=$RESNAME byoAKSSubnetId=${{ secrets.ByoAksSubnetId }} byoAGWSubnetId=${{ secrets.ByoAgwSubnetId }} --verbose
             
       - name: Deploy AKS
+        id:  deployAks
         uses: Azure/cli@1.0.4
         if: steps.activedeps.outputs.RUNCOUNT == 0
         with:
           inlineScript: |
-            RG='Automation-Actions-AksDeployCI'
+            RG='${{ env.RG }}'
             RESNAME='AksByo'
             DEPNAME='Dep${{ github.run_number }}'
-            az deployment group create -f main.bicep -g $RG -p "AksDeploy-ByoVnet.parameters.json" -p resourceName=$RESNAME --name $DEPNAME --verbose
+            az deployment group create -f bicep/main.bicep -g $RG -p ".github/workflows_dep/AksDeploy-ByoVnet.parameters.json" -p resourceName=$RESNAME byoAKSSubnetId=${{ secrets.ByoAksSubnetId }} byoAGWSubnetId=${{ secrets.ByoAgwSubnetId }} --name $DEPNAME --verbose
             
             DEPSTATUS=$(az deployment operation group list --resource-group $RG --name $DEPNAME) #--query "[?properties.provisioningState=='Failed']"
             echo $DEPSTATUS
             
-            #$AKSNAME=$(az aks list -g Automation-Actions-AksDeployCI --query "[].[name]" -o tsv)
-            #$APPMANIFEST='https://raw.githubusercontent.com/Gordonby/AKS-K8S-Lab-L200/master/azure-vote-all-in-one-redis.yaml'
-            #az aks get-credentials -g $RG -n $AKSNAME --admin
-            #kubectl apply -f $APPMANIFEST
+            #outputs
+            AKSNAME=$(az deployment group show -n Dep42 -g Automation-Actions-AksDeployCI --query "properties.outputs.aksClusterName.value" -o tsv)
+            echo "::set-output name=AKSNAME::$AKSNAME" #outputting for conditon
+            
+      - name: AKS Workload
+        uses: Azure/cli@1.0.4
+        if: success()
+        env:
+          MANIFESTTESTURL: "https://raw.githubusercontent.com/Gordonby/AKS-K8S-Lab-L200/master/azure-vote-all-in-one-redis.yaml"
+        with:
+          inlineScript: |
+            RG='${{ env.RG }}'
+            AKSNAME='${{ steps.deployAks.outputs.AKSNAME}}'
+            
+            echo $AKSNAME
+            az aks get-credentials -n $AKSNAME -g $RG --admin
+            
+            az aks install-cli
+            kubectl version
+            
+            echo $MANIFESTTESTURL
+            kubectl apply -f $MANIFESTTESTURL
 
+            kubectl get po
+            kubectl get svc
+            kubectl get ingress
