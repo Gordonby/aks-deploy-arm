@@ -37,9 +37,10 @@ jobs:
       - name: Bicep build
         shell: pwsh
         run: |
-          write-output $pwd
-          $compiledir=Join-Path -Path $pwd -ChildPath "bicep/$compiled"
+          #write-output $pwd
+          $compiledir=Join-Path -Path $pwd -ChildPath "bicep/compiled"
           
+          write-output $compiledir
           If(!(test-path $compiledir))
           {
                 New-Item -ItemType Directory -Force -Path $compiledir
