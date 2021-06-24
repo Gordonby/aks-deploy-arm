@@ -40,7 +40,12 @@ jobs:
 
       - name: Bicep build
         shell: pwsh
-        run: /home/runner/.azure/bin/bicep build main.json --outdir compiled
+        run: |
+          write-output $pwd
+          
+          cd bicep
+          mkdir compiled
+          /home/runner/.azure/bin/bicep build main.json --outdir compiled
         
       - name: ContextCheck
         shell: pwsh
