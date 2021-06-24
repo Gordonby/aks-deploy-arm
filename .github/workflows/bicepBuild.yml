@@ -42,10 +42,14 @@ jobs:
         shell: pwsh
         run: |
           write-output $pwd
+          $compiledir=Join-Path -Path $pwd -ChildPath "bicep/$compiled"
           
-          cd bicep
-          mkdir compiled
-          /home/runner/.azure/bin/bicep build main.bicep --outdir compiled
+          If(!(test-path $compiledir))
+          {
+                New-Item -ItemType Directory -Force -Path $compiledir
+          }
+
+          /home/runner/.azure/bin/bicep build bicep/main.bicep --outdir $compiledir
 
       - name: ContextCheck
         shell: pwsh
