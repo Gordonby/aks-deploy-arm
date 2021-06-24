@@ -41,8 +41,9 @@ jobs:
           curl -O $uri
           
           ls
+
           # Mark it as executable
-          chmod +x  bicep-linux-x64
+          chmod +x  ./bicep-linux-x64
           
           # Add bicep to your PATH (requires admin)
           sudo mv ./bicep-linux-x64 /usr/local/bin/bicep
