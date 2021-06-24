@@ -37,13 +37,13 @@ jobs:
           $uri = "https://github.com/Azure/bicep/releases/download/$($release.tag_name)/bicep-linux-x64"
           
           # Fetch the given version of Bicep CLI binary
-          sudo curl -Lo /usr/local/bin/bicep $uri
+          sudo $uri
           
           # Mark it as executable
-          chmod +x  /usr/local/bin/bicep
+          chmod +x  bicep-linux-x64
           
           # Add bicep to your PATH (requires admin)
-          #sudo mv ./bicep /usr/local/bin/bicep
+          sudo mv ./bicep-linux-x64 /usr/local/bin/bicep
           
           # Verify you can now access the 'bicep' command
           bicep --help
