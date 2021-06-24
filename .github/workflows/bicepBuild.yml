@@ -46,9 +46,12 @@ jobs:
           cd bicep
           mkdir compiled
           /home/runner/.azure/bin/bicep build main.bicep --outdir compiled
-        
+
       - name: ContextCheck
         shell: pwsh
         run: |
-          cd compliled
+          cd compiled
           dir
+          
+      - name: push
+        uses: actions-x/commit@v2
