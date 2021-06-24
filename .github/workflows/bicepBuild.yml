@@ -36,19 +36,19 @@ jobs:
           }
           $uri = "https://github.com/Azure/bicep/releases/download/$($release.tag_name)/bicep-linux-x64"
           
-          # Fetch the given version of Bicep CLI binary
           write-output "Downloading $uri"
           curl -O $uri
           
+          write-output "Listing directory contents"
           ls
 
-          # Mark it as executable
+          write-output "Marking file as executable"
           chmod +x  ./bicep-linux-x64
           
-          # Add bicep to your PATH (requires admin)
+          write-output "Moving executable to bin path"
           sudo mv ./bicep-linux-x64 /usr/local/bin/bicep
           
-          # Verify you can now access the 'bicep' command
+          write-output "Verifying bicep can be run"
           bicep --help
           
       - name: Bicep build
