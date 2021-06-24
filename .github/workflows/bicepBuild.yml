@@ -21,15 +21,21 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    steps:
+       steps:
       - uses: actions/checkout@v2
 
+      - name: ContextCheck
+        shell: pwsh
+        run: dir
+
       - name: Install Bicep
+        shell: pwsh
         run: |
           az bicep install
-
       - name: ChangeDir
+        shell: pwsh
         run: cd bicep
-          
+
       - name: Bicep build
-        run: bicep build --file main.json --outdir compiled/
+        shell: pwsh
+        run: /home/runner/.azure/bin/bicep build --file main.json --outdir compiled/
