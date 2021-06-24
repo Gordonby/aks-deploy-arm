@@ -20,6 +20,8 @@ jobs:
         env:
           bicepversion: latest
         run: |
+          echo "BicepVersion required: $bicepversion"
+          
           # Check Bicep version
           $uri = "https://api.github.com/repos/Azure/bicep/releases"
           $headers = @{ Accept = "application/vnd.github.v3+json" }
