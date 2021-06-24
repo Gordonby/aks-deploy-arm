@@ -25,7 +25,7 @@ jobs:
       - name: Install Bicep
         shell: pwsh
         run: |
-          az install bicep
+          az bicep install
 
       - name: ChangeDir
         shell: pwsh
