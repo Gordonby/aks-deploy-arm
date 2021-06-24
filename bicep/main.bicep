@@ -1,8 +1,6 @@
 param location string = resourceGroup().location
 param resourceName string
 
-param enableOsm
-
 //---------------------------------------------------------------------------------- User Identity
 var user_identity = create_vnet || existing_vnet
 var user_identity_name = 'id-${resourceName}'
