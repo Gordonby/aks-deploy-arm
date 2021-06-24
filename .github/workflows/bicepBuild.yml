@@ -18,6 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: ContextCheck
+        shell: pwsh
+        run: dir
+
       - name: Install Bicep
         shell: pwsh
         run: |
@@ -33,13 +37,13 @@ jobs:
           $uri = "https://github.com/Azure/bicep/releases/download/$($release.tag_name)/bicep-linux-x64"
           
           # Fetch the given version of Bicep CLI binary
-          curl -Lo bicep $uri
+          sudo curl -Lo /usr/local/bin/bicep $uri
           
           # Mark it as executable
-          chmod +x ./bicep
+          chmod +x  /usr/local/bin/bicep
           
           # Add bicep to your PATH (requires admin)
-          sudo mv ./bicep /usr/local/bin/bicep
+          #sudo mv ./bicep /usr/local/bin/bicep
           
           # Verify you can now access the 'bicep' command
           bicep --help
