@@ -24,19 +24,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: ContextCheck
-        shell: pwsh
-        run: dir
-
       - name: Install Bicep
-        shell: pwsh
         run: |
           az bicep install
 
       - name: ChangeDir
-        shell: pwsh
         run: cd bicep
           
       - name: Bicep build
-        shell: pwsh
         run: bicep build --file main.json --outdir compiled/
