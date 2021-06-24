@@ -25,28 +25,7 @@ jobs:
       - name: Install Bicep
         shell: pwsh
         run: |
-          # Check Bicep versions available
-          $uri = "https://api.github.com/repos/Azure/bicep/releases"
-          $headers = @{ Accept = "application/vnd.github.v3+json" }
-          $releases = Invoke-RestMethod -Method GET -Uri $uri -Headers $headers
-          if (($Version -eq "latest") -or ($Version -eq $null)) {
-              $release = ($releases | Select-Object -Property tag_name | Sort-Object -Descending)[0]
-          } else {
-              $release = ($releases | Where-Object { $_.tag_name -like $Version.Replace("x", "*") } | Select-Object -Property tag_name | Sort-Object -Descending)[0]
-          }
-          $uri = "https://github.com/Azure/bicep/releases/download/$($release.tag_name)/bicep-linux-x64"
-          
-          write-output "Downloading $uri"
-          curl -O $uri
-          
-          write-output "Listing directory contents"
-          ls
-
-          write-output "Marking file as executable"
-          chmod +x  ./bicep-linux-x64
-          
-          write-output "Moving executable to bin path"
-          sudo mv ./bicep-linux-x64 /usr/local/bin/bicep
+          az bicep install
           
           write-output "Verifying bicep can be run"
           bicep --help
