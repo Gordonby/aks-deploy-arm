@@ -50,7 +50,7 @@ jobs:
       - name: ContextCheck
         shell: pwsh
         run: |
-          cd compiled
+          cd bicep/compiled
           dir
           
       - name: push
