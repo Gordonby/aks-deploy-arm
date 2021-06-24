@@ -40,4 +40,4 @@ jobs:
 
       - name: Bicep build
         shell: pwsh
-        run: /home/runner/.azure/bin/bicep build main.json --outdir compiled/
+        run: /home/runner/.azure/bin/bicep build main.json --outdir compiled
