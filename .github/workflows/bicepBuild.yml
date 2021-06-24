@@ -4,13 +4,9 @@ name: BicepBuild
 
 on:
   push:
-    branches:
-      - main
-      - master
-      
-    #paths: 
-    #  - "/bicep"
-    #  - "/.github/workflows/bicepBuild.yml"
+    paths: 
+      - 'bicep/*'
+      - ".github/workflows/bicepBuild.yml"
       
   pull_request:
     branches:
