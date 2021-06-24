@@ -4,7 +4,10 @@ name: BicepBuild
 
 on:
   push:
-    paths: "/bicep"
+    paths: 
+      - "/bicep"
+      - "/.github/workflows/bicepBuild.yml"
+      
 
   workflow_dispatch:
   
@@ -20,6 +23,8 @@ jobs:
         env:
           bicepversion: latest
         run: |
+          if($bicepversion -eq $null) {$bicepversion="latest"}
+          
           echo "BicepVersion required: $bicepversion"
           
           # Check Bicep version
