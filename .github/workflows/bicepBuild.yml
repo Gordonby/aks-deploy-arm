@@ -37,7 +37,7 @@ jobs:
           $uri = "https://github.com/Azure/bicep/releases/download/$($release.tag_name)/bicep-linux-x64"
           
           # Fetch the given version of Bicep CLI binary
-          sudo $uri
+          curl $uri
           
           # Mark it as executable
           chmod +x  bicep-linux-x64
